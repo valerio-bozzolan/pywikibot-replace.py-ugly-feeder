@@ -1,4 +1,3 @@
-#!/usr/bin/php
 <?php
 # Copyright (C) 2017 Valerio Bozzolan
 #
@@ -16,8 +15,25 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class Generic {
-	static function regexSpace($s) {
-		return str_replace(' ', '[_ ]', preg_quote( $s ) );
+	const SPACES = '[_ ]*';
+	const NEWLINES = '[_\n ]*';
+
+	/**
+	 * «Note that / is not a special regular expression character.»
+	 * — https://secure.php.net/manual/en/function.preg-quote.php
+	 *
+	 * asd
+	 */
+	static function escapeRegex($s) {
+		return str_replace(
+			['/'],
+			['\/'],
+			preg_quote($s)
+		);
+	}
+
+	static function space2regex($s) {
+		return str_replace(' ', '[_ ]+', self::escapeRegex( $s ) );
 	}
 
 	static function regexFirstCase($s) {
@@ -26,45 +42,45 @@ class Generic {
 		$first_up   = ucfirst($first);
 		$first_down = lcfirst($first);
 		$s = $first_up === $first_down ? $first_up : sprintf('[%s%s]', $first_up, $first_down);
-		return $s . self::regexspace( $rest );
+		return $s . self::space2regex( $rest );
 	}
 
-	static function whiteRegex() {
-		return '[_ ]*';
+	static function whiteRegex($s) {
+		return self::SPACES . $s . self::SPACES;
+	}
+
+	static function group($s) {
+		return "($s)";
 	}
 }
 
 class Template {
 	public $name;
 
+	// {{Something }
+	// {{Something |
+	// {{Something <!-- asd --> (and then we hope the "|" or "}")
+	const AFTER_NAME = '[ \n]*[}<\|]';
+
 	function __construct($name) {
 		$this->name = $name;
 	}
 
 	private function getRegexLeft() {
-		return preg_quote('{{') .
-			Generic::whiteRegex() .
-			Generic::regexFirstCase($this->name);
+		return preg_quote('{{') . Generic::group(Generic::NEWLINES) . Generic::regexFirstCase($this->name);
 	}
 
 	function getRegex() {
-		return $this->getRegexLeft() . Generic::whiteRegex() . preg_quote('}}');
-	}
-
-	function getRegexLeftPiped() {
-		return $this->getRegexLeft() . Generic::whiteRegex() . preg_quote('|');
+		return $this->getRegexLeft() . Generic::group(self::AFTER_NAME);
 	}
 
 	function getWikitextLeft() {
-		return '{{' . $this->name;
+		//             ↓ newlines
+		return '{{' . '\g<1>' . $this->name;
 	}
 
 	function getWikitext() {
-		return $this->getWikitextLeft() . '}}';
-	}
-
-	function getWikitextLeftPiped() {
-		return $this->getWikitextLeft() . '|';
+		return $this->getWikitextLeft() . '\g<2>';
 	}
 }
 
@@ -102,16 +118,16 @@ class WLink {
 		return str_replace('_', ' ', trim( $s ) );
 	}
 
-	static function regexspace($s) {
-		return str_replace(' ', '[_ ]', preg_quote( $s ) );
+	static function space2regex($s) {
+		return str_replace(' ', '[_ ]', Generic::escapeRegex( $s ) );
 	}
 
 	function getLinkRegexLeft() {
 		$start = '\[\[';
 		if( ! $this->normalize ) {
-			return $start . Generic::regexSpace( $this->link );
+			return $start . Generic::whiteRegex( Generic::space2regex( $this->link ) );
 		}
-		return $start . Generic::regexFirstCase($this->link);
+		return $start . Generic::whiteRegex( Generic::regexFirstCase($this->link) );
 	}
 
 	function getLinkRegexLeftPiped() {
@@ -119,7 +135,7 @@ class WLink {
 	}
 
 	function getRegex() {
-		$right = $this->hasAlias() ? '\|' . self::regexspace( $this->alias ) : '';
+		$right = $this->hasAlias() ? '\|' . Generic::whiteRegex( self::space2regex( $this->alias ) ) : '';
 		return $this->getLinkRegexLeft() . $right . '\]\]';
 	}
 
@@ -171,7 +187,7 @@ class WLinkReplacer {
 	}
 
 	function getPywikibotCouples() {
-		if( substr($this->a, 0, 9) === 'Template:' ) {
+		if( substr($this->a, 0, 2) === 'T:' || substr($this->a, 0, 9) === 'Template:' ) {
 			$this->a = substr($this->a, 9);
 			$this->b = substr($this->b, 9);
 			return $this->operateTemplate();
@@ -187,9 +203,6 @@ class WLinkReplacer {
 		$all[] = $a->getRegex();
 		$all[] = $b->getWikitext();
 
-		$all[] = $a->getRegexLeftPiped();
-		$all[] = $b->getWikitextLeftPiped();
-
 		return self::spawn($all);
 	}
 
@@ -197,40 +210,62 @@ class WLinkReplacer {
 		$wa    = new WLink($this->a);
 		$wb    = new WLink($this->b);
 		$wab   = new WLink($this->a, $this->b);
+		$wbb   = new WLink($this->b, $this->b);
 
 		$all = [];
 
 		if( $this->normalize ) {
+			// [[A]] → [[B]
 			$all[] = $wa->getRegex();
 			$all[] = $wb->getWikitext();
 
+			// [[A|B]] → [[B]]
 			$all[] = $wab->getRegex();
 			$all[] = $wb->getWikitext();
 		} else {
-			$wb_u = $wb->cloneUC();
-			$wb_l = $wb->cloneLC();
+			$wb_u = $wb->cloneUC(); // [[B]]
+			$wb_l = $wb->cloneLC(); // [[b]]
 
+			// [[A]] → [[B]]
 			$all[] = $wa->cloneUC()->getRegex();
 			$all[] = $wb_u->getWikitext();
 
+			// [[a]] → [[b]]
 			$all[] = $wa->cloneLC()->getRegex();
 			$all[] = $wb_l->getWikitext();
 
+			// [[A|B]] → [[B]]
 			$all[] = $wab->cloneUC()->getRegex();
 			$all[] = $wb_u->getWikitext();
 
+			// [[A|b]] → [[b]]
 			$all[] = $wab->cloneLC()->getRegex();
 			$all[] = $wb_l->getWikitext();
 		}
 
+		// [[A| → [[B|
 		$all[] = $wa->getLinkRegexLeftPiped();
 		$all[] = $wb->getWikitextLeftPiped();
+
+		if( $this->normalize ) {
+			// [[A|A]] → [[A]]
+			$all[] = $wbb->getRegex();
+			$all[] = $wb->getWikitext();
+		} else {
+			// [[A|A]] → [[A]]
+			$all[] = $wbb->cloneUC()->getRegex();
+			$all[] = $wb_u->getWikitext();
+
+			// [[A|a]] → [[a]]
+			$all[] = $wbb->cloneLC()->getRegex();
+			$all[] = $wb_l->getWikitext();
+		}
 
 		return self::spawn($all);
 	}
 
 	static function spawn($all) {
-		return "'" . implode("' '", $all) . "'"; // :^)
+		return '"' . implode('" "', $all) . '"'; // :^)
 	}
 }
 
@@ -238,4 +273,6 @@ function convert_a_b($a, $b, $normalize = null) {
 	return WLinkReplacer::factory($a, $b, $normalize)->getPywikibotCouples();
 }
 
-echo convert_a_b( ucfirst( $argv[1] ), ucfirst( $argv[2] ), @ $argv[3] ) . "\n";
+if( isset( $argv[1], $argv[2] ) ) {
+	echo convert_a_b( ucfirst( $argv[1] ), ucfirst( $argv[2] ), @ $argv[3] );
+}
