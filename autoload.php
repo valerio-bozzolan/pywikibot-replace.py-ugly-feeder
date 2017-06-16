@@ -14,16 +14,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+if( file_exists('configuration.php') ) {
+	require 'configuration.php';
+}
+
 spl_autoload_register( function($name) {
-	$_ = DIRECTORY_SEPARATOR;
-	$path = __DIR__ . $_ . 'includes' . $_ . "class-$name.php";
+	$path = __DIR__ . DIRECTORY_SEPARATOR . 'includes' . DIRECTORY_SEPARATOR . "class-$name.php";
 	if( is_file( $path ) ) {
 		require $path;
 	}
 } );
 
-if( file_exists('configuration.php') ) {
-	require 'configuration.php';
-}
-
-require 'boz-mw' . DIRECTORY_SEPARATOR . 'autoload.php';
+require __DIR__ . 'includes' . DIRECTORY_SEPARATOR . 'boz-mw' . DIRECTORY_SEPARATOR . 'autoload.php';
