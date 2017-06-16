@@ -2,6 +2,32 @@
 
 This script feeds the [replace.py](https://www.mediawiki.org/wiki/Manual:Pywikibot/replace.py) script of [Pywikibot](https://www.mediawiki.org/wiki/Manual:Pywikibot) in order to orphanize redirects.
 
+## Why I use it
+
+* It fetches all the redirects (as `[[ASD]]`→`[[LOL]]`) from a certain category
+* It helps me orphanizing them with a regex generator
+
+## What it does
+
+* [X] Correction of underscores as whitespaces (`[[Banana_(vegetable)]]` is seen as `[[Banana (vegetable)]]`)
+* [X] Correction of starting/ending whitespaces (`[[  Banana (vegetable) ]]` is seen as `[[Banana (vegetable)]]`)
+* [X] First character is maintained as default
+** `[[A]]` → `[[B]]`
+** `[[a]]` → `[[b]]`
+* [X] Piped title is maintained by default
+** `[[A|C]]` → `[[B|C]]`
+** `[[a|C]]` → `[[B|C]]`
+** `[[A|c]]` → `[[B|c]]`
+** `[[a|c]]` → `[[B|c]]`
+* [X] Omissing the piped title if can be omitted (`[[A|b]]` → `[[B|b]]` → `[[b]]`)
+* [X] Maintaining of starting/ending newlines for templates
+* [x] Understanding template values as possible wikilinks
+** `{{Something|A}}` → `{{Something|B}}`
+** `{{Something|something = a }}` → `{{Something|something = b }}` ecc.
+
+Optionally:
+* [X] Proper names can be maintained in upper case
+
 ## Cloning
 
     git clone --recursive https://github.com/valerio-bozzolan/pywikibot-replace.py-ugly-feeder.git
@@ -14,7 +40,7 @@ This script feeds the [replace.py](https://www.mediawiki.org/wiki/Manual:Pywikib
 
 ## Usage
 
-First fetch wikilinks from the [Categoria:Redirect da orfanizzare e cancellare](https://it.wikipedia.org/wiki/Categoria:Redirect_da_orfanizzare_e_cancellare):
+First fetch wikilinks from the it.wiki [Categoria:Redirect da orfanizzare e cancellare](https://it.wikipedia.org/wiki/Categoria:Redirect_da_orfanizzare_e_cancellare):
 
     php fetch-redirects-in-csv.php
 
