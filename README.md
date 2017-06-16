@@ -9,6 +9,8 @@ This script feeds the [replace.py](https://www.mediawiki.org/wiki/Manual:Pywikib
 ## Installation
 
     cp pywikibot-pre-template-example.txt pywikibot-pre-template.txt
+    touch    pywikibot-ready.sh
+    chmod +x pywikibot-ready.sh
 
 ## Usage
 
@@ -18,7 +20,7 @@ First fetch wikilinks from the [Categoria:Redirect da orfanizzare e cancellare](
 
 After verified the generated `CSV` files then:
 
-    cp pywikibot-pre-template.txt      > pywikibot-ready.sh
+    cp pywikibot-pre-template.txt        pywikibot-ready.sh
     php generate-regexes-from-csv.php >> pywikibot-ready.sh
 
 Now simply:

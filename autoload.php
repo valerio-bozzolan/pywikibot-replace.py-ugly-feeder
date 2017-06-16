@@ -22,4 +22,4 @@ spl_autoload_register( function($name) {
 	}
 } );
 
-require boz_mw . DIRECTORY_SEPARATOR . 'autoload.php';
+require 'boz-mw' . DIRECTORY_SEPARATOR . 'autoload.php';

@@ -7,4 +7,5 @@ move_a-b_article_propername.csv
 move_a-b_simple.csv
 
 # Custom user file
+pywikibot-ready.sh
 pywikibot-pre-template.txt

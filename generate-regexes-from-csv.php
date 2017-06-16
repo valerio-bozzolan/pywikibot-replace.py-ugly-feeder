@@ -17,6 +17,10 @@
 require 'autoload.php';
 
 function a_b($file) {
+	if( ! file_exists($file) ) {
+		return [];
+	}
+
 	$rows = file_get_contents($file);
 
 	$a_b = [];
@@ -48,7 +52,7 @@ function print_row($what) {
 }
 
 function generic_a_b($a_b, $propername = false) {
-	$a = ucfirst( $a_b[0];
+	$a = ucfirst( $a_b[0] );
 	$b = ucfirst( $a_b[1] );
 	print_row( WLinkReplacer::factory($a, $b, $propername)->getPywikibotCouples() );
 }
