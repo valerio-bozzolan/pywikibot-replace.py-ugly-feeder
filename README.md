@@ -12,18 +12,18 @@ This script feeds the [replace.py](https://www.mediawiki.org/wiki/Manual:Pywikib
 * [X] Correction of underscores as whitespaces (`[[Banana_(vegetable)]]` is seen as `[[Banana (vegetable)]]`)
 * [X] Correction of starting/ending whitespaces (`[[  Banana (vegetable) ]]` is seen as `[[Banana (vegetable)]]`)
 * [X] First character is maintained as default
-** `[[A]]` → `[[B]]`
-** `[[a]]` → `[[b]]`
+ * `[[A]]` → `[[B]]`
+ * `[[a]]` → `[[b]]`
 * [X] Piped title is maintained by default
-** `[[A|C]]` → `[[B|C]]`
-** `[[a|C]]` → `[[B|C]]`
-** `[[A|c]]` → `[[B|c]]`
-** `[[a|c]]` → `[[B|c]]`
-* [X] Omissing the piped title if can be omitted (`[[A|b]]` → `[[B|b]]` → `[[b]]`)
+ * `[[A|C]]` → `[[B|C]]`
+ * `[[a|C]]` → `[[B|C]]`
+ * `[[A|c]]` → `[[B|c]]`
+ * `[[a|c]]` → `[[B|c]]`
+* [X] Stripping stupid piped titles (`[[A|b]]` → `[[B|b]]` → `[[b]]`)
 * [X] Maintaining of starting/ending newlines for templates
 * [x] Understanding template values as possible wikilinks
-** `{{Something|A}}` → `{{Something|B}}`
-** `{{Something|something = a }}` → `{{Something|something = b }}` ecc.
+ * `{{Something|A}}` → `{{Something|B}}`
+ * `{{Something|something = a }}` → `{{Something|something = b }}` ecc.
 
 Optionally:
 * [X] Proper names can be maintained in upper case
