@@ -1,0 +1,5 @@
+# Correct your pywikibot pathname
+
+python pywikibot/pwb.py replace.py $1 \
+-summary:"[[Cat:Redirect da orfanizzare e cancellare|orfanizzazione redirect]]" \
+-regex \
