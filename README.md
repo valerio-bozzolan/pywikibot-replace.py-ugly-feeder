@@ -18,11 +18,13 @@ First fetch wikilinks from the [Categoria:Redirect da orfanizzare e cancellare](
 
     php fetch-redirects-in-csv.php
 
-This will fetch all the redirect ([example output](https://paste.debian.net/971728/)) in two files:
+This will fetch all the redirects ([example output](https://paste.debian.net/971728/)) in two files:
 * `move_a-b_article.csv` ([example](https://paste.debian.net/971729/))
 * `move-a-b-template.csv` ([example](https://paste.debian.net/971730/)).
 
-After verified the generated `CSV` files then do:
+After verified the generated `CSV` files, read all the lines from `move_a-b_article.csv` looking for proper names (like "Jhon Foo", and not like "Banana"). Move these proper names rows in a file called `move_a-b_article_propername.csv`.
+
+Then do:
 
     cp pywikibot-pre-template.txt        pywikibot-ready.sh
     php generate-regexes-from-csv.php >> pywikibot-ready.sh
