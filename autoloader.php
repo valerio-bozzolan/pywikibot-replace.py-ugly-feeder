@@ -22,6 +22,8 @@ spl_autoload_register( function($name) {
 	}
 } );
 
+require boz_mw . DIRECTORY_SEPARATOR . 'autoload.php';
+
 function wlink_replacer($a, $b, $normalize = null) {
 	return WLinkReplacer::factory($a, $b, $normalize)->getPywikibotCouples();
 }

@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-require 'escape.php';
+require 'autoload.php';
 
 function a_b($file) {
 	$rows = file_get_contents($file);
