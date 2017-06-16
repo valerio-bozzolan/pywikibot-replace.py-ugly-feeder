@@ -29,7 +29,9 @@ Then do:
     cp pywikibot-pre-template.txt        pywikibot-ready.sh
     php generate-regexes-from-csv.php >> pywikibot-ready.sh
 
-Now simply:
+Well done! You have just generated a clean and so-loooong Pywikibot replace.py command file ([example](https://paste.debian.net/971735/)).
+
+Now run your so-loooong Pywikibot command:
 
     sh pywikibot-ready.sh
 
