@@ -18,7 +18,11 @@ First fetch wikilinks from the [Categoria:Redirect da orfanizzare e cancellare](
 
     php fetch-redirects-in-csv.php
 
-After verified the generated `CSV` files then:
+This will fetch all the redirect ([example output](https://paste.debian.net/971728/)) in two files:
+* `move_a-b_article.csv` ([example](https://paste.debian.net/971729/))
+* `move-a-b-template.csv` ([example](https://paste.debian.net/971730/)).
+
+After verified the generated `CSV` files then do:
 
     cp pywikibot-pre-template.txt        pywikibot-ready.sh
     php generate-regexes-from-csv.php >> pywikibot-ready.sh
@@ -29,9 +33,7 @@ Now simply:
 
 Have fun!
 
-# License
-Copyright (C) 2017 Valerio Bozzolan & contributors.
-
+# Disclaimer
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 
 This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
