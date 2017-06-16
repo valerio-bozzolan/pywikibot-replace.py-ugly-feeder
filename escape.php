@@ -17,6 +17,7 @@
 class Generic {
 	const SPACES = '[_ ]*';
 	const NEWLINES = '[_\n ]*';
+	const NEWLINES_TABS = '[ \n\t]*';
 
 	/**
 	 * «Note that / is not a special regular expression character.»
@@ -60,14 +61,14 @@ class Template {
 	// {{Something }
 	// {{Something |
 	// {{Something <!-- asd --> (and then we hope the "|" or "}")
-	const AFTER_NAME = '[ \n]*[}<\|]';
+	const AFTER_NAME = Generic::NEWLINES_TABS . '[}<\|]';
 
 	function __construct($name) {
 		$this->name = $name;
 	}
 
 	private function getRegexLeft() {
-		return preg_quote('{{') . Generic::group(Generic::NEWLINES) . Generic::regexFirstCase($this->name);
+		return preg_quote('{{') . Generic::group(Generic::NEWLINES_TABS) . Generic::regexFirstCase($this->name);
 	}
 
 	function getRegex() {
@@ -187,12 +188,20 @@ class WLinkReplacer {
 	}
 
 	function getPywikibotCouples() {
-		if( substr($this->a, 0, 2) === 'T:' || substr($this->a, 0, 9) === 'Template:' ) {
-			$this->a = substr($this->a, 9);
-			$this->b = substr($this->b, 9);
-			return $this->operateTemplate();
+		$is_template_short =                 substr($this->a, 0, 2) === 'T:';
+		$is_template = $is_template_short || substr($this->a, 0, 9) === 'Template:';
+		if( $is_template ) {
+			$offset = $is_template_short ? 2 : 9;
+			$this->a = substr($this->a, $offset);
+			$this->b = substr($this->b, $offset);
 		}
-		return $this->operateWLink();
+
+		return // Direct call as wikitext
+			( $is_template ? $this->operateTemplate() : $this->operateWLink() )
+			. " " .
+			// +
+			// Indirect call under a template (as {{Vedi anche}})
+			$this->operateTemplateValue();
 	}
 
 	function operateTemplate() {
@@ -262,6 +271,15 @@ class WLinkReplacer {
 		}
 
 		return self::spawn($all);
+	}
+
+	function operateTemplateValue() {
+		$couples = [];
+		$couples[] = Generic::group('[=\|]' . Generic::NEWLINES ) .
+		             Generic::group( Generic::regexFirstCase($this->a) ) .
+		             Generic::group( Generic::NEWLINES . Template::AFTER_NAME );
+		$couples[] = '\g<1>' . $this->b . '\g<3>';
+		return self::spawn( $couples );
 	}
 
 	static function spawn($all) {
