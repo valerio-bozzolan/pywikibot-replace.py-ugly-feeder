@@ -23,11 +23,3 @@ spl_autoload_register( function($name) {
 } );
 
 require boz_mw . DIRECTORY_SEPARATOR . 'autoload.php';
-
-function wlink_replacer($a, $b, $normalize = null) {
-	return WLinkReplacer::factory($a, $b, $normalize)->getPywikibotCouples();
-}
-
-if( isset( $argv[1], $argv[2] ) ) {
-	echo wlink_replacer( ucfirst( $argv[1] ), ucfirst( $argv[2] ), @ $argv[3] );
-}

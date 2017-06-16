@@ -48,9 +48,9 @@ function print_row($what) {
 }
 
 function generic_a_b($a_b, $propername = false) {
-	print_row(
-		convert_a_b( ucfirst( $a_b[0] ), ucfirst( $a_b[1] ), $propername )
-	);
+	$a = ucfirst( $a_b[0];
+	$b = ucfirst( $a_b[1] );
+	print_row( WLinkReplacer::factory($a, $b, $propername)->getPywikibotCouples() );
 }
 
 $a_b_article            = a_b('move_a-b_article.csv');
