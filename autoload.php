@@ -16,10 +16,14 @@
 
 spl_autoload_register( function($name) {
 	$_ = DIRECTORY_SEPARATOR;
-	$path = __DIR__ . $_ . 'includes ' . $_ . "class-$name.php";
+	$path = __DIR__ . $_ . 'includes' . $_ . "class-$name.php";
 	if( is_file( $path ) ) {
 		require $path;
 	}
 } );
+
+if( file_exists('configuration.php') ) {
+	require 'configuration.php';
+}
 
 require 'boz-mw' . DIRECTORY_SEPARATOR . 'autoload.php';
