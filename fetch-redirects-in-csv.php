@@ -1,3 +1,4 @@
+#!/usr/bin/php
 <?php
 # Copyright (C) 2017 Valerio Bozzolan
 #
