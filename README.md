@@ -52,14 +52,13 @@ After verified the generated `CSV` files, read all the lines from `move_a-b_arti
 
 Then do:
 
-    cp pywikibot-pre-template.txt        pywikibot-ready.sh
+    cat pywikibot-pre-template.txt    >  pywikibot-ready.sh
     php generate-regexes-from-csv.php >> pywikibot-ready.sh
 
-Well done! You have just generated a clean and so-loooong Pywikibot replace.py command file ([example](https://paste.debian.net/971735/)).
+    # Now you are ready:
+    ./pywikibot-ready.sh -ns:0
 
-Now run your so-loooong Pywikibot command:
-
-    sh pywikibot-ready.sh
+The `pywikibot-ready.sh` is your generated Pywikibot replace.py command file ([example](https://paste.debian.net/971735/)).
 
 Have fun!
 
