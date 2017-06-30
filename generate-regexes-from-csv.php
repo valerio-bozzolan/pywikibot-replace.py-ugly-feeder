@@ -72,6 +72,13 @@ foreach($a_b_template as $a_b) {
 	) );
 }
 
+foreach($a_b_template as $a_b) {
+	print_row( sprintf(
+		'-ref:"%s"',
+		$a_b[0]
+	) );
+}
+
 foreach($a_b_article as $a_b) {
 	print_row( sprintf(
 		'-ref:"%s"',
