@@ -16,6 +16,7 @@
 
 class Generic {
 	const SPACES = '[_ ]*';
+	const SPACES_TABS = '[\t_ ]*';
 	const NEWLINES = '[_\n ]*';
 	const NEWLINES_TABS = '[ \n\t]*';
 

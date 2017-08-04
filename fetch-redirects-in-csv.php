@@ -54,7 +54,7 @@ while( $api->hasNext() ) {
 			'redirects' => 1
 		] )->fetch();
 
-		if( ! $redirects || ! $redirects->query->pages ) {
+		if( ! isset( $redirects, $redirects->query, $redirects->query->pages ) ) {
 			var_dump($categorymember);
 			die("No redirect?");
 		}
@@ -67,6 +67,8 @@ while( $api->hasNext() ) {
 				var_dump($redirect);
 				die("No same namespace?");
 			}
+
+			echo "[RETRIEVED] \t $title → \t $redirect_title\n";
 
 			$ns_from_to[$ns][] = sprintf('%s;%s', $title, $redirect_title);
 		}

@@ -15,6 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class WLinkReplacer {
+
 	public $a;
 	public $b;
 	public $normalize;
@@ -57,11 +58,17 @@ class WLinkReplacer {
 		return self::spawn($all);
 	}
 
+	function getWLinkVariants() {
+		return [
+			$wa    = new WLink($this->a),
+			$wb    = new WLink($this->b),
+			$wab   = new WLink($this->a, $this->b),
+			$wbb   = new WLink($this->b, $this->b)
+		];
+	}
+
 	function operateWLink() {
-		$wa    = new WLink($this->a);
-		$wb    = new WLink($this->b);
-		$wab   = new WLink($this->a, $this->b);
-		$wbb   = new WLink($this->b, $this->b);
+		list($wa, $wb, $wab, $wbb) = $this->getWLinkVariants();
 
 		$all = [];
 
@@ -116,11 +123,62 @@ class WLinkReplacer {
 	}
 
 	function operateTemplateValue() {
+		$wa = new WLink( "Template:" . $this->a );
+		$wb = new WLink( "Template:" . $this->b );
+
+		$wa_short = new WLink( "T:" . $this->a );
+		$wb_short = new WLink( "T:" . $this->b );
+
 		$couples = [];
-		$couples[] = Generic::group('[=\|]' . Generic::NEWLINES ) .
+
+		// `qualcosa = A` → `qualcosa = b`
+		// Tranne `editore = A` ecc.
+		$banned_args = [
+			'editore', // Cita web
+			'sito',
+			'arg2'     // F
+		];
+		$negative_lookaheads = '';
+		foreach($banned_args as $banned_arg) {
+			$negative_lookaheads .= sprintf('(?<!%s)', $banned_arg);
+		}
+		$couples[] = Generic::group( '\|' . Generic::NEWLINES . $negative_lookaheads . Generic::NEWLINES . '=' . Generic::NEWLINES ) .
 		             Generic::group( Generic::regexFirstCase($this->a) ) .
 		             Generic::group( Generic::NEWLINES . Template::AFTER_NAME );
 		$couples[] = '\g<1>' . $this->b . '\g<3>';
+
+		// {{ Qualcosa | A }} → {{ Qualcosa | B }}
+		// Tranne {{F}} ecc.
+		$banned_templates = [
+			'F',
+			'W'
+		];
+		$negative_lookaheads = '';
+		foreach($banned_templates as $banned_template) {
+			$banned_template = Generic::regexFirstCase( $banned_template );
+			$negative_lookaheads .= sprintf('(?<!%s)', $banned_template);
+		}
+		$couples[] = Generic::group( '{{' . Generic::SPACES_TABS . $negative_lookaheads . Generic::NEWLINES  . '\|' . Generic::NEWLINES ) .
+		             Generic::group( Generic::regexFirstCase($this->a) ) .
+		             Generic::group( Generic::NEWLINES . Template::AFTER_NAME );
+		$couples[] = '\g<1>' . $this->b . '\g<3>';
+
+		// [[Template:A]] → [[Template:B]
+		$couples[] = $wa->getRegex();
+		$couples[] = $wb->getWikitext();
+
+		// [[T:A]] → [[T:B]]
+		$couples[] = $wa_short->getRegex();
+		$couples[] = $wb_short->getWikitext();
+
+		// [[Template:A| → [[Template:B|
+		$couples[] = $wa->getLinkRegexLeftPiped();
+		$couples[] = $wb->getWikitextLeftPiped();
+
+		// [[T:A| → [[T:B|
+		$couples[] = $wa_short->getLinkRegexLeftPiped();
+		$couples[] = $wb_short->getLinkRegexLeftPiped();
+
 		return self::spawn( $couples );
 	}
 
